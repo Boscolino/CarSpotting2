@@ -1,461 +1,1123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web App</title>
+    <title>AutoSpotter - Car Spotting Community</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .container { border: 1px solid #ccc; padding: 20px; }
-        .nav-tabs { margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-        .nav-tabs button { margin-right: 5px; padding: 10px; }
-        /* Styles for new elements */
-        #auth-container { margin-bottom: 20px; padding: 10px; border: 1px solid #eee; }
-        #user-status { margin-bottom: 10px; }
-        #login-form-container {
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-top: 10px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        #registration-form-container {
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-top: 10px;
-            display: none; /* Hidden by default */
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
         }
-        #login-form-container h3, #registration-form-container h3 { margin-top: 0; }
-        label, input { display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="password"] { width: 200px; padding: 5px; }
-        button { padding: 8px 12px; cursor: pointer; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header-content {
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #4a5568;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .brand-card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .brand-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .model-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .model-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .model-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .spot-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .spot-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .camera-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .camera-btn {
+            background: linear-gradient(45deg, #ed8936, #dd6b20);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .camera-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(237, 137, 54, 0.4);
+        }
+
+        .photo-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .spotted-cars {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .spotted-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #c6f6d5;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.1);
+        }
+
+        .spotted-badge {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Stili per l'autenticazione */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .auth-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .auth-button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                min-width: unset;
+            }
+
+            .brand-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .models-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .spotted-cars {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .auth-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-container {
+                width: 100%;
+            }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .fancy-auth-btn {
+            background: linear-gradient(90deg,#667eea,#764ba2);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-radius: 30px;
+            padding: 12px 28px;
+            transition: box-shadow 0.2s, transform 0.15s, background 0.3s;
+        }
+        .fancy-auth-btn:hover {
+            background: linear-gradient(90deg,#764ba2,#667eea);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.35);
+            transform: scale(1.05) rotate(-2deg);
+        }
+        .auth-container input:focus {
+            box-shadow: 0 0 0 2px #667eea33;
+        }
+        .auth-tab.active {
+            background: linear-gradient(90deg,#667eea,#764ba2);
+        }
+        .auth-btn {
+            font-size: 1.1em;
+        }
+        .auth-container {
+            animation: popIn 0.4s;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="auth-container">
-            <div id="user-status">
-                <!-- Initially empty, or e.g., "You are not logged in." -->
-                <button id="logoutButton" style="display:none;">Logout</button>
+    <div id="authModal" class="auth-modal">
+        <div class="auth-container" style="box-shadow:0 12px 40px rgba(102,126,234,0.25);animation:popIn 0.4s;">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthMode('login')">Accedi</button>
+                <button class="auth-tab" onclick="switchAuthMode('register')">Registrati</button>
             </div>
-
-            <div id="login-form-container">
-                <h3>Login</h3>
-                <form id="loginForm">
-                    <div>
-                        <label for="loginUsername">Username:</label>
-                        <input type="text" id="loginUsername" name="username" required>
-                    </div>
-                    <div>
-                        <label for="loginPassword">Password:</label>
-                        <input type="password" id="loginPassword" name="password" required>
-                    </div>
-                    <button type="submit">Login</button>
-                </form>
-                <p>Don't have an account? <button onclick="showRegistrationForm()">Register here</button></p>
+            <form id="loginForm" class="auth-form">
+                <input type="email" placeholder="Email" id="loginEmail" required style="transition:box-shadow 0.2s;">
+                <input type="password" placeholder="Password" id="loginPassword" required style="transition:box-shadow 0.2s;">
+                <button type="submit" class="auth-btn" style="background:linear-gradient(90deg,#667eea,#764ba2);box-shadow:0 2px 12px rgba(102,126,234,0.15);">Accedi</button>
+            </form>
+            <form id="registerForm" class="auth-form hidden">
+                <input type="text" placeholder="Nome" id="registerName" required style="transition:box-shadow 0.2s;">
+                <input type="email" placeholder="Email" id="registerEmail" required style="transition:box-shadow 0.2s;">
+                <input type="password" placeholder="Password" id="registerPassword" required style="transition:box-shadow 0.2s;">
+                <button type="submit" class="auth-btn" style="background:linear-gradient(90deg,#48bb78,#38a169);box-shadow:0 2px 12px rgba(72,187,120,0.15);">Registrati</button>
+            </form>
+            <div style="text-align:center;margin-top:10px;">
+                <span style="color:#718096;font-size:0.95em;">Benvenuto su <b>AutoSpotter</b>! 🚗</span>
             </div>
-
-            <div id="registration-form-container">
-                <h3>Register</h3>
-                <form id="registrationForm">
-                    <div>
-                        <label for="regUsername">Username:</label>
-                        <input type="text" id="regUsername" name="username" required>
-                    </div>
-                    <div>
-                        <label for="regPassword">Password:</label>
-                        <input type="password" id="regPassword" name="password" required>
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
-                <p>Already have an account? <button onclick="showLoginForm()">Login here</button></p>
-            </div>
-        </div>
-
-        <div class="nav-tabs">
-            <button>Tab 1</button>
-            <button>Tab 2</button>
-        </div>
-
-        <div id="spottedCarsContainer" style="margin-top: 20px;">
-            <!-- Cars will be displayed here -->
-        </div>
-
-        <div id="statsContainer" style="margin-top: 20px; padding: 10px; border: 1px solid #eee;">
-            <h3>Statistics</h3>
-            <p>Total Spotted: <span id="totalSpotted">0</span></p>
-            <p>Unique Brands: <span id="uniqueBrands">0</span></p>
-            <p>Spotted Today: <span id="todaySpotted">0</span></p>
-            <p>Spotted This Month: <span id="monthSpotted">0</span></p>
-            <h4>Brand Breakdown:</h4>
-            <div id="brandStats"><p style="color: #718096;">Log in to see your stats.</p></div>
         </div>
     </div>
-    <script>
-        // Global variables
-        let currentUser = null;
-        let users = JSON.parse(localStorage.getItem('users')) || {};
-        let spottedCars = []; // To hold cars of the logged-in user
 
-        // --- DOM Elements ---
-        // We'll get these in DOMContentLoaded to ensure they exist
-        let loginFormContainer, registrationFormContainer, logoutButton, userStatusElement;
-        let loginForm, registrationForm;
-        let loginUsernameInput, loginPasswordInput, regUsernameInput, regPasswordInput;
-        let spottedCarsContainer, totalSpottedEl, uniqueBrandsEl, todaySpottedEl, monthSpottedEl, brandStatsEl;
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🚗 AutoSpotter</h1>
+                <p class="subtitle">La community italiana per il car spotting</p>
+            </div>
+            <div id="userSection" class="user-section">
+                <!-- Il bottone viene gestito SOLO da JS -->
+            </div>
+        </header>
 
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('browse')">Sfoglia Auto</button>
+            <button class="nav-tab" onclick="showTab('camera')">Scatta Foto</button>
+            <button class="nav-tab" onclick="showTab('spotted')">Auto Avvistate</button>
+            <button class="nav-tab" onclick="showTab('stats')">Statistiche</button>
+        </div>
 
-        // --- Utility Functions ---
-        function displaySpottedCars() {
-            if (!spottedCarsContainer) spottedCarsContainer = document.getElementById('spottedCarsContainer'); // Ensure it's assigned
+        <!-- Tab Sfoglia Auto -->
+        <div id="browse" class="tab-content active">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Cerca marca o modello..." oninput="searchCars(this.value)">
+            </div>
+            
+            <div id="brands-view">
+                <h2 style="margin-bottom: 20px; color: #4a5568;">Seleziona una Marca</h2>
+                <div class="brand-grid" id="brandsGrid"></div>
+            </div>
 
-            if (!currentUser) {
-                if (spottedCarsContainer) {
-                    spottedCarsContainer.innerHTML = `
-                        <div style="text-align: center; color: #718096; padding: 40px;">
-                            <p>Please log in to see your spotted cars or to start spotting!</p>
-                        </div>`;
-                }
-                return;
-            }
+            <div id="models-view" class="hidden">
+                <button onclick="showBrands()" style="background: #e2e8f0; border: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; cursor: pointer;">← Torna alle Marche</button>
+                <h2 id="modelsTitle" style="margin-bottom: 20px; color: #4a5568;"></h2>
+                <div class="models-grid" id="modelsGrid"></div>
+            </div>
+        </div>
 
-            if (!spottedCarsContainer) {
-                console.error("spottedCarsContainer not found");
-                return;
-            }
-
-            spottedCarsContainer.innerHTML = ''; // Clear existing cars
-            if (spottedCars.length === 0) {
-                spottedCarsContainer.innerHTML = '<p style="text-align: center; color: #718096;">You haven\'t spotted any cars yet. Go find some!</p>';
-                return;
-            }
-
-            const ul = document.createElement('ul');
-            ul.style.listStyleType = 'none';
-            ul.style.padding = '0';
-
-            spottedCars.forEach(car => {
-                const li = document.createElement('li');
-                li.style.border = '1px solid #ddd';
-                li.style.padding = '10px';
-                li.style.marginBottom = '10px';
-                li.textContent = `Brand: ${car.brand}, Model: ${car.model}, Spotted: ${new Date(car.spottedDate).toLocaleDateString()}`;
+        <!-- Tab Camera -->
+        <div id="camera" class="tab-content">
+            <div class="camera-container">
+                <h2 style="margin-bottom: 20px; color: #4a5568;">Fotografa un'Auto</h2>
+                <button class="camera-btn" onclick="openCamera()">
+                    📸 Scatta Foto
+                </button>
+                <input type="file" id="fileInput" accept="image" capture="camera" onchange="handlePhoto(event)">
+                <div class="photo-preview" id="photoPreview"></div>
                 
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.style.marginLeft = '10px';
-                deleteButton.style.backgroundColor = '#ff6b6b';
-                deleteButton.style.color = 'white';
-                deleteButton.style.border = 'none';
-                deleteButton.style.padding = '5px 8px';
-                deleteButton.style.cursor = 'pointer';
-                deleteButton.onclick = function() { deleteSpottedCar(car.id); };
-                li.appendChild(deleteButton);
-                ul.appendChild(li);
+                <div id="carSelection" class="hidden" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px; color: #4a5568;">Che auto hai fotografato?</h3>
+                    <select id="brandSelect" onchange="updateModelSelect()" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                        <option value="">Seleziona marca...</option>
+                    </select>
+                    <select id="modelSelect" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                        <option value="">Seleziona modello...</option>
+                    </select>
+                    <button onclick="saveSpottedCar()" style="background: linear-gradient(45deg, #48bb78, #38a169); color: white; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%;">
+                        Salva Avvistamento
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Auto Avvistate -->
+        <div id="spotted" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #4a5568;">Le Tue Auto Avvistate</h2>
+            <div class="spotted-cars" id="spottedCars">
+                <div style="text-align: center; color: #718096; padding: 40px;">
+                    <p>Nessuna auto avvistata ancora. Inizia a fotografare!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Statistiche -->
+        <div id="stats" class="tab-content">
+            <h2 style="margin-bottom: 30px; color: #4a5568;">Le Tue Statistiche</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSpotted">0</div>
+                    <div class="stat-label">Auto Avvistate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uniqueBrands">0</div>
+                    <div class="stat-label">Marche Diverse</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todaySpotted">0</div>
+                    <div class="stat-label">Oggi</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="monthSpotted">0</div>
+                    <div class="stat-label">Questo Mese</div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 15px; margin-top: 20px;">
+                <h3 style="margin-bottom: 15px; color: #4a5568;">Marche Più Avvistate</h3>
+                <div id="brandStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database delle auto
+        const carDatabase = {
+            'Abarth': ['595', '695', '124 Spider'],
+            'Alfa Romeo': ['Giulia', 'Stelvio', 'Giulietta', 'MiTo', '4C', 'Tonale'],
+            'Aston Martin': ['DB11', 'Vantage', 'DBS', 'Rapide', 'Valkyrie'],
+            'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'R8', 'e-tron GT'],
+            'Bentley': ['Continental', 'Bentayga', 'Flying Spur', 'Mulsanne'],
+            'BMW': ['Serie 1', 'Serie 2', 'Serie 3', 'Serie 4', 'Serie 5', 'Serie 6', 'Serie 7', 'Serie 8', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'Z4', 'i3', 'i4', 'iX'],
+            'Bugatti': ['Chiron', 'Veyron', 'Divo'],
+            'Chevrolet': ['Camaro', 'Corvette', 'Cruze', 'Malibu'],
+            'Citroën': ['C1', 'C3', 'C4', 'C5', 'C3 Aircross', 'C5 Aircross', 'Berlingo'],
+            'Dacia': ['Sandero', 'Duster', 'Logan', 'Spring', 'Jogger'],
+            'Ferrari': ['488', 'F8', 'SF90', 'Roma', 'Portofino', 'LaFerrari', '812', 'Monza'],
+            'Fiat': ['500', 'Panda', 'Tipo', '500X', '500L', 'Doblo', 'Ducato'],
+            'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'EcoSport', 'Puma', 'Mustang', 'Edge'],
+            'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz', 'NSX'],
+            'Hyundai': ['i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona', 'IONIQ'],
+            'Jaguar': ['XE', 'XF', 'XJ', 'F-Type', 'E-Pace', 'F-Pace', 'I-Pace'],
+            'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'],
+            'Kia': ['Picanto', 'Rio', 'Ceed', 'Sportage', 'Sorento', 'Stonic', 'EV6'],
+            'Lamborghini': ['Huracán', 'Aventador', 'Urus', 'Gallardo', 'Murciélago'],
+            'Lancia': ['Ypsilon', 'Delta'],
+            'Land Rover': ['Defender', 'Discovery', 'Range Rover', 'Range Rover Sport', 'Range Rover Evoque'],
+            'Lexus': ['IS', 'ES', 'LS', 'NX', 'RX', 'UX', 'LC'],
+            'Maserati': ['Ghibli', 'Quattroporte', 'Levante', 'GranTurismo', 'MC20'],
+            'Mazda': ['2', '3', '6', 'CX-3', 'CX-5', 'CX-30', 'MX-5'],
+            'McLaren': ['720S', '570S', 'P1', 'Senna', 'Artura'],
+            'Mercedes-Benz': ['Classe A', 'Classe B', 'Classe C', 'Classe E', 'Classe S', 'CLA', 'CLS', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-Class', 'AMG GT', 'EQC', 'EQS'],
+            'MINI': ['Cooper', 'Countryman', 'Clubman', 'Convertible'],
+            'Mitsubishi': ['Space Star', 'ASX', 'Outlander', 'Eclipse Cross'],
+            'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', '370Z', 'GT-R', 'Leaf'],
+            'Opel': ['Corsa', 'Astra', 'Insignia', 'Crossland', 'Grandland', 'Mokka'],
+            'Peugeot': ['108', '208', '308', '508', '2008', '3008', '5008', 'Partner'],
+            'Porsche': ['911', 'Boxster', 'Cayman', 'Panamera', 'Macan', 'Cayenne', 'Taycan'],
+            'Renault': ['Twingo', 'Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar', 'Koleos', 'ZOE'],
+            'Rolls-Royce': ['Ghost', 'Phantom', 'Wraith', 'Dawn', 'Cullinan'],
+            'SEAT': ['Ibiza', 'Leon', 'Ateca', 'Arona', 'Tarraco'],
+            'Škoda': ['Citigo', 'Fabia', 'Scala', 'Octavia', 'Superb', 'Kamiq', 'Karoq', 'Kodiaq'],
+            'Smart': ['fortwo', 'forfour'],
+            'Subaru': ['Impreza', 'XV', 'Forester', 'Outback', 'BRZ'],
+            'Suzuki': ['Ignis', 'Swift', 'Baleno', 'SX4', 'Vitara', 'Jimny'],
+            'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y', 'Roadster', 'Cybertruck'],
+            'Toyota': ['Aygo', 'Yaris', 'Corolla', 'Camry', 'C-HR', 'RAV4', 'Highlander', 'Prius', 'Supra'],
+            'Volkswagen': ['up!', 'Polo', 'Golf', 'Jetta', 'Passat', 'Arteon', 'T-Cross', 'T-Roc', 'Tiguan', 'Touareg', 'ID.3', 'ID.4'],
+            'Volvo': ['V40', 'V60', 'V90', 'S60', 'S90', 'XC40', 'XC60', 'XC90']
+        };
+
+        let spottedCars = JSON.parse(localStorage.getItem('spottedCars') || '[]');
+        let currentPhoto = null;
+
+        // Gestione autenticazione
+        let currentUser = null;
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            displayBrands();
+            displaySpottedCars();
+            updateStats();
+            populateBrandSelects();
+            checkUserAuthentication();
+        });
+
+        function showTab(tabName) {
+            // Nascondi tutti i contenuti
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Mostra il tab selezionato
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Aggiorna le statistiche se è il tab stats
+            if(tabName === 'stats') {
+                updateStats();
+            }
+        }
+
+        function displayBrands() {
+            const brandsGrid = document.getElementById('brandsGrid');
+            brandsGrid.innerHTML = '';
+            
+            Object.keys(carDatabase).forEach(brand => {
+                const brandCard = document.createElement('div');
+                brandCard.className = 'brand-card';
+                brandCard.onclick = () => showModels(brand);
+                
+                const emoji = getBrandEmoji(brand);
+                brandCard.innerHTML = `
+                    <div class="brand-logo">${emoji}</div>
+                    <h3>${brand}</h3>
+                    <p>${carDatabase[brand].length} modelli</p>
+                `;
+                
+                brandsGrid.appendChild(brandCard);
             });
-            spottedCarsContainer.appendChild(ul);
-            console.log("displaySpottedCars called for user:", currentUser, "Cars displayed:", spottedCars.length);
         }
 
-        function updateStats() {
-            if (!totalSpottedEl) totalSpottedEl = document.getElementById('totalSpotted');
-            if (!uniqueBrandsEl) uniqueBrandsEl = document.getElementById('uniqueBrands');
-            if (!todaySpottedEl) todaySpottedEl = document.getElementById('todaySpotted');
-            if (!monthSpottedEl) monthSpottedEl = document.getElementById('monthSpotted');
-            if (!brandStatsEl) brandStatsEl = document.getElementById('brandStats');
-
-            if (!currentUser) {
-                if(totalSpottedEl) totalSpottedEl.textContent = '0';
-                if(uniqueBrandsEl) uniqueBrandsEl.textContent = '0';
-                if(todaySpottedEl) todaySpottedEl.textContent = '0';
-                if(monthSpottedEl) monthSpottedEl.textContent = '0';
-                if(brandStatsEl) brandStatsEl.innerHTML = '<p style="color: #718096;">Log in to see your stats.</p>';
-                return;
-            }
-            
-            if (!totalSpottedEl || !uniqueBrandsEl || !todaySpottedEl || !monthSpottedEl || !brandStatsEl) {
-                 console.error("One or more stats elements not found");
-                 return;
-            }
-
-            totalSpottedEl.textContent = spottedCars.length;
-
-            const brands = new Set(spottedCars.map(car => car.brand.toLowerCase()));
-            uniqueBrandsEl.textContent = brands.size;
-
-            const today = new Date().setHours(0, 0, 0, 0);
-            const todayCount = spottedCars.filter(car => new Date(car.spottedDate).setHours(0, 0, 0, 0) === today).length;
-            todaySpottedEl.textContent = todayCount;
-
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            const monthCount = spottedCars.filter(car => {
-                const date = new Date(car.spottedDate);
-                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-            }).length;
-            monthSpottedEl.textContent = monthCount;
-
-            // Brand stats
-            const brandCounts = spottedCars.reduce((acc, car) => {
-                acc[car.brand] = (acc[car.brand] || 0) + 1;
-                return acc;
-            }, {});
-            
-            brandStatsEl.innerHTML = ''; // Clear previous stats
-            if (Object.keys(brandCounts).length === 0) {
-                brandStatsEl.innerHTML = '<p style="color: #718096;">No cars spotted yet for brand breakdown.</p>';
-            } else {
-                const ul = document.createElement('ul');
-                ul.style.paddingLeft = '20px';
-                for (const brand in brandCounts) {
-                    const li = document.createElement('li');
-                    li.textContent = `${brand}: ${brandCounts[brand]}`;
-                    ul.appendChild(li);
-                }
-                brandStatsEl.appendChild(ul);
-            }
-            console.log("updateStats called for user:", currentUser);
+        function getBrandEmoji(brand) {
+            const emojis = {
+                'Ferrari': '🏎️', 'Lamborghini': '🏎️', 'Porsche': '🏎️', 'BMW': '🚗', 'Mercedes-Benz': '🚙',
+                'Audi': '🚗', 'Volkswagen': '🚗', 'Toyota': '🚗', 'Honda': '🚗', 'Nissan': '🚗',
+                'Ford': '🚗', 'Chevrolet': '🚗', 'Fiat': '🚗', 'Alfa Romeo': '🏁', 'Jeep': '🚙',
+                'Land Rover': '🚙', 'Tesla': '⚡', 'Volvo': '🚗', 'MINI': '🚗', 'Smart': '🚗'
+            };
+            return emojis[brand] || '🚗';
         }
-        
-        // --- Car Management Functions ---
-        function generateCarId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+
+        function showModels(brand) {
+            document.getElementById('brands-view').classList.add('hidden');
+            document.getElementById('models-view').classList.remove('hidden');
+            document.getElementById('modelsTitle').textContent = `Modelli ${brand}`;
+            
+            const modelsGrid = document.getElementById('modelsGrid');
+            modelsGrid.innerHTML = '';
+            
+            carDatabase[brand].forEach(model => {
+                const modelCard = document.createElement('div');
+                modelCard.className = 'model-card';
+                modelCard.innerHTML = `
+                    <h3>${model}</h3>
+                    <p>Marca: ${brand}</p>
+                    <button class="spot-btn" onclick="spotCar('${brand}', '${model}')">
+                        ✅ Avvistata!
+                    </button>
+                `;
+                
+                modelsGrid.appendChild(modelCard);
+            });
+        }
+
+        function showBrands() {
+            document.getElementById('models-view').classList.add('hidden');
+            document.getElementById('brands-view').classList.remove('hidden');
         }
 
         function spotCar(brand, model) {
-            if (!currentUser) {
-                alert("Please log in to spot cars.");
-                return;
-            }
-            const spottedCar = { id: generateCarId(), brand: brand, model: model, photo: null, spottedDate: new Date().toISOString() };
-
-            if (!users[currentUser]) { 
-                alert("Error: Current user not found in database.");
-                return;
-            }
-            if (!users[currentUser].cars) {
-                users[currentUser].cars = []; 
-            }
-            users[currentUser].cars.push(spottedCar);
-            localStorage.setItem('users', JSON.stringify(users));
-            spottedCars = users[currentUser].cars; 
-
-            console.log("Car spotted and saved for user:", currentUser, spottedCar);
+            const spottedCar = {
+                id: Date.now(),
+                brand: brand,
+                model: model,
+                date: new Date().toISOString(),
+                photo: null
+            };
+            spottedCars.push(spottedCar);
+            saveSpottedCars();
+            alert(`${brand} ${model} aggiunta agli avvistamenti! 🎉`);
             displaySpottedCars();
             updateStats();
         }
 
-        function saveSpottedCar(carData) { 
-            if (!currentUser) {
-                alert("Please log in to save your spot.");
+        function searchCars(query) {
+            if(!query) {
+                displayBrands();
                 return;
             }
-             if (!carData || !carData.brand || !carData.model) {
-                alert("Car data is incomplete. Cannot save.");
-                return;
-            }
+            
+            query = query.toLowerCase();
+            const brandsGrid = document.getElementById('brandsGrid');
+            brandsGrid.innerHTML = '';
+            
+            Object.keys(carDatabase).forEach(brand => {
+                const matchingModels = carDatabase[brand].filter(model => 
+                    brand.toLowerCase().includes(query) || model.toLowerCase().includes(query)
+                );
+                
+                if(matchingModels.length > 0) {
+                    matchingModels.forEach(model => {
+                        const modelCard = document.createElement('div');
+                        modelCard.className = 'brand-card';
+                        modelCard.innerHTML = `
+                            <div class="brand-logo">${getBrandEmoji(brand)}</div>
+                            <h3>${brand} ${model}</h3>
+                            <button class="spot-btn" onclick="spotCar('${brand}', '${model}')" style="margin-top: 10px; padding: 8px 16px;">
+                                ✅ Avvistata!
+                            </button>
+                        `;
+                        brandsGrid.appendChild(modelCard);
+                    });
+                }
+            });
+        }
 
-            const newSpottedCar = { 
-                id: generateCarId(),
-                brand: carData.brand, 
-                model: carData.model, 
-                photo: carData.photo || null, 
-                spottedDate: new Date().toISOString() 
+        function openCamera() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handlePhoto(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhoto = e.target.result;
+                    document.getElementById('photoPreview').innerHTML = `
+                        <img src="${currentPhoto}" alt="Foto scattata">
+                    `;
+                    document.getElementById('carSelection').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function populateBrandSelects() {
+            const brandSelect = document.getElementById('brandSelect');
+            Object.keys(carDatabase).forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            });
+        }
+
+        function updateModelSelect() {
+            const brandSelect = document.getElementById('brandSelect');
+            const modelSelect = document.getElementById('modelSelect');
+            const selectedBrand = brandSelect.value;
+            
+            modelSelect.innerHTML = '<option value="">Seleziona modello...</option>';
+            
+            if(selectedBrand && carDatabase[selectedBrand]) {
+                carDatabase[selectedBrand].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            }
+        }
+
+        function saveSpottedCar() {
+            const brand = document.getElementById('brandSelect').value;
+            const model = document.getElementById('modelSelect').value;
+            
+            if(!brand || !model) {
+                alert('Seleziona marca e modello!');
+                return;
+            }
+            
+            const spottedCar = {
+                id: Date.now(),
+                brand: brand,
+                model: model,
+                date: new Date().toISOString(),
+                photo: currentPhoto
             };
-
-            if (!users[currentUser]) { 
-                alert("Error: Current user not found in database.");
-                return;
-            }
-            if (!users[currentUser].cars) {
-                users[currentUser].cars = [];
-            }
-            users[currentUser].cars.push(newSpottedCar);
-            localStorage.setItem('users', JSON.stringify(users));
-            spottedCars = users[currentUser].cars; 
-
-            console.log("Car data saved for user:", currentUser, newSpottedCar);
+            
+            spottedCars.push(spottedCar);
+            saveSpottedCars();
+            alert(`${brand} ${model} salvata con foto! 📸🎉`);
+            
+            // Reset
+            document.getElementById('photoPreview').innerHTML = '';
+            document.getElementById('carSelection').classList.add('hidden');
+            document.getElementById('brandSelect').value = '';
+            document.getElementById('modelSelect').value = '';
+            currentPhoto = null;
+            
             displaySpottedCars();
             updateStats();
+        }
+
+        function displaySpottedCars() {
+            const spottedContainer = document.getElementById('spottedCars');
+            
+            if(spottedCars.length === 0) {
+                spottedContainer.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <p>Nessuna auto avvistata ancora. Inizia a fotografare! 📸</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            spottedContainer.innerHTML = '';
+            
+            // Ordina per data più recente
+            const sortedCars = [...spottedCars].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedCars.forEach(car => {
+                const carCard = document.createElement('div');
+                carCard.className = 'spotted-card';
+                
+                const date = new Date(car.date);
+                const formattedDate = date.toLocaleDateString('it-IT', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                carCard.innerHTML = `
+                    <div class="spotted-badge">AVVISTATA</div>
+                    <h3>${car.brand} ${car.model}</h3>
+                    <p style="color: #718096; margin: 10px 0;">📅 ${formattedDate}</p>
+                    ${car.photo ? `<img src="${car.photo}" alt="Foto ${car.brand} ${car.model}" style="width: 100%; border-radius: 10px; margin-top: 15px;">` : ''}
+                    <button onclick="deleteSpottedCar(${car.id})" style="background: #f56565; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-top: 15px;">
+                        🗑️ Elimina
+                    </button>
+                `;
+                
+                spottedContainer.appendChild(carCard);
+            });
         }
 
         function deleteSpottedCar(carId) {
-            if (!currentUser) {
-                alert("Error: No user logged in. Cannot delete car.");
-                return;
-            }
-            if (!users[currentUser] || !users[currentUser].cars) {
-                alert("Error: User data or car list not found.");
-                return;
-            }
-
-            const initialLength = users[currentUser].cars.length;
-            users[currentUser].cars = users[currentUser].cars.filter(car => car.id !== carId);
-            
-            if (users[currentUser].cars.length < initialLength) {
-                spottedCars = users[currentUser].cars; // Update global array
-                localStorage.setItem('users', JSON.stringify(users));
-                console.log("Car with ID", carId, "deleted for user:", currentUser);
+            if(confirm('Sei sicuro di voler eliminare questo avvistamento?')) {
+                spottedCars = spottedCars.filter(car => car.id !== carId);
+                saveSpottedCars();
                 displaySpottedCars();
                 updateStats();
-            } else {
-                console.log("Car with ID", carId, "not found for user:", currentUser);
             }
         }
 
-        // --- Form Visibility ---
-        function showRegistrationForm() {
-            if(loginFormContainer) loginFormContainer.style.display = 'none';
-            if(registrationFormContainer) registrationFormContainer.style.display = 'block';
-        }
-
-        function showLoginForm() {
-            if(registrationFormContainer) registrationFormContainer.style.display = 'none';
-            if(loginFormContainer) loginFormContainer.style.display = 'block';
-        }
-
-        // --- UI Update based on Login Status ---
-        function updateLoginStatusUI() {
-            if (currentUser) {
-                if(loginFormContainer) loginFormContainer.style.display = 'none';
-                if(registrationFormContainer) registrationFormContainer.style.display = 'none';
-                if(logoutButton) logoutButton.style.display = 'inline'; // Or 'block'
-                if(userStatusElement) userStatusElement.textContent = "Logged in as: " + currentUser;
-            } else {
-                // By default, show login form if no user is logged in
-                showLoginForm(); // This will also hide registration form
-                if(logoutButton) logoutButton.style.display = 'none';
-                if(userStatusElement) userStatusElement.textContent = "You are not logged in.";
-            }
-        }
-
-        // --- Authentication Functions ---
-        function registerUser(username, password) {
-            if (users[username]) {
-                alert("Username already exists.");
-                return;
-            }
-            users[username] = { password: password, cars: [] };
-            localStorage.setItem('users', JSON.stringify(users));
-            alert("Registration successful! Please log in.");
-            if(regUsernameInput) regUsernameInput.value = '';
-            if(regPasswordInput) regPasswordInput.value = '';
-            showLoginForm();
-        }
-
-        function loginUser(username, password) {
-            if (!users[username]) {
-                alert("User not found.");
-                return;
-            }
-            if (users[username].password !== password) {
-                alert("Incorrect password.");
-                return;
-            }
-            currentUser = username;
-            sessionStorage.setItem('currentUser', currentUser);
-
-            // Load user's cars or initialize if not present
-            if (users[currentUser] && users[currentUser].cars) {
-                spottedCars = users[currentUser].cars;
-            } else {
-                // This case might happen if a user was created without a cars array, ensure it's initialized
-                if (!users[currentUser]) users[currentUser] = { password: password, cars: [] }; // Should not happen if login was successful
-                else users[currentUser].cars = [];
-                spottedCars = [];
-                localStorage.setItem('users', JSON.stringify(users)); // Save if cars array was initialized
-            }
-
-            alert("Login successful!");
-            updateLoginStatusUI();
-            displaySpottedCars(); // Refresh display
-            updateStats();        // Refresh stats
-            if(loginUsernameInput) loginUsernameInput.value = '';
-            if(loginPasswordInput) loginPasswordInput.value = '';
-        }
-
-        function logoutUser() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            spottedCars = []; // Clear user-specific data
-            alert("Logged out.");
-            updateLoginStatusUI();
-            displaySpottedCars(); // Clear or update display
-            updateStats();        // Clear or update stats
-        }
-
-        // --- Event Listeners and Initial Load ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Assign DOM elements after they are loaded
-            loginFormContainer = document.getElementById('login-form-container');
-            registrationFormContainer = document.getElementById('registration-form-container');
-            logoutButton = document.getElementById('logoutButton');
-            userStatusElement = document.getElementById('user-status'); 
+        function updateStats() {
+            const totalSpotted = spottedCars.length;
+            const uniqueBrands = new Set(spottedCars.map(car => car.brand)).size;
             
-            spottedCarsContainer = document.getElementById('spottedCarsContainer');
-            totalSpottedEl = document.getElementById('totalSpotted');
-            uniqueBrandsEl = document.getElementById('uniqueBrands');
-            todaySpottedEl = document.getElementById('todaySpotted');
-            monthSpottedEl = document.getElementById('monthSpotted');
-            brandStatsEl = document.getElementById('brandStats');
+            const today = new Date();
+            const todaySpotted = spottedCars.filter(car => {
+                const carDate = new Date(car.date);
+                return carDate.toDateString() === today.toDateString();
+            }).length;
+            
+            const thisMonth = spottedCars.filter(car => {
+                const carDate = new Date(car.date);
+                return carDate.getMonth() === today.getMonth() && carDate.getFullYear() === today.getFullYear();
+            }).length;
+            
+            document.getElementById('totalSpotted').textContent = totalSpotted;
+            document.getElementById('uniqueBrands').textContent = uniqueBrands;
+            document.getElementById('todaySpotted').textContent = todaySpotted;
+            document.getElementById('monthSpotted').textContent = thisMonth;
+            
+            updateBrandStats();
+        }
 
-            loginForm = document.getElementById('loginForm');
-            registrationForm = document.getElementById('registrationForm');
-
-            loginUsernameInput = document.getElementById('loginUsername');
-            loginPasswordInput = document.getElementById('loginPassword');
-            regUsernameInput = document.getElementById('regUsername');
-            regPasswordInput = document.getElementById('regPassword');
-
-            // Attach event listeners
-            if(loginForm) {
-                loginForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    if(loginUsernameInput && loginPasswordInput) {
-                        loginUser(loginUsernameInput.value, loginPasswordInput.value);
-                    }
-                });
+        function updateBrandStats() {
+            const brandCounts = {};
+            spottedCars.forEach(car => {
+                brandCounts[car.brand] = (brandCounts[car.brand] || 0) + 1;
+            });
+            
+            const sortedBrands = Object.entries(brandCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const brandStatsContainer = document.getElementById('brandStats');
+            
+            if(sortedBrands.length === 0) {
+                brandStatsContainer.innerHTML = '<p style="color: #718096;">Nessuna statistica disponibile</p>';
+                return;
             }
+            
+            brandStatsContainer.innerHTML = sortedBrands.map(([brand, count]) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                    <span style="font-weight: 600;">${getBrandEmoji(brand)} ${brand}</span>
+                    <span style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.9rem;">${count}</span>
+                </div>
+            `).join('');
+        }
 
-            if(registrationForm) {
-                registrationForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    if(regUsernameInput && regPasswordInput) {
-                        registerUser(regUsernameInput.value, regPasswordInput.value);
-                    }
-                });
-            }
+        // Gestione autenticazione
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
 
-            if(logoutButton) {
-                logoutButton.addEventListener('click', function() {
-                    logoutUser();
-                });
-            }
+        function hideAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
 
-            // Initial state setup
-            const storedUser = sessionStorage.getItem('currentUser');
-            if (storedUser && users[storedUser]) { 
-                currentUser = storedUser;
-                // Load user's cars or initialize if not present
-                if (users[currentUser] && users[currentUser].cars) {
-                    spottedCars = users[currentUser].cars;
-                } else {
-                    // If user data is somehow inconsistent or user has no cars
-                    if(users[currentUser]) { // if user exists but no cars array
-                        users[currentUser].cars = [];
-                        localStorage.setItem('users', JSON.stringify(users)); // Re-save users
-                    }
-                    spottedCars = [];
-                }
+        function switchAuthMode(mode) {
+            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.add('hidden'));
+            
+            if(mode === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.querySelector('.auth-tab:first-child').classList.add('active');
             } else {
-                // Ensure if a user was in sessionStorage but (e.g.) deleted from localStorage, they are logged out
-                if(storedUser) sessionStorage.removeItem('currentUser'); // Clear invalid session
-                currentUser = null;
-                spottedCars = [];
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.querySelector('.auth-tab:last-child').classList.add('active');
             }
-            updateLoginStatusUI(); 
-            displaySpottedCars(); // Display cars if any for logged-in user
-            updateStats();        // Update stats if any for logged-in user
-            // showLoginForm(); // This is handled by updateLoginStatusUI if not logged in
+        }
+
+        // Gestione form login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            // Qui dovresti implementare la vera logica di autenticazione
+            // Per ora simuliamo un login di successo
+            handleLogin({
+                email: email,
+                name: email.split('@')[0]
+            });
         });
+
+        // Gestione form registrazione
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            // Validazione semplice
+            if (!name || !email || !password) {
+                alert('Compila tutti i campi!');
+                return;
+            }
+            if (!email.includes('@')) {
+                alert('Inserisci una email valida!');
+                return;
+            }
+            if (password.length < 6) {
+                alert('La password deve essere di almeno 6 caratteri!');
+                return;
+            }
+
+            // Simula la registrazione e login automatico
+            handleLogin({
+                email: email,
+                name: name
+            });
+        });
+
+        function handleLogin(user) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            updateUserInterface();
+            loadSpottedCars();
+            displaySpottedCars();
+            updateStats();
+            hideAuthModal();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUserInterface();
+            loadSpottedCars();
+            displaySpottedCars();
+            updateStats();
+        }
+
+        function updateUserInterface() {
+            const userSection = document.getElementById('userSection');
+            if(currentUser) {
+                userSection.innerHTML = `
+                    <div class="user-info" style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:1.2em;">👋 ${currentUser.name}</span>
+                        <button onclick="handleLogout()" class="auth-button" style="background:linear-gradient(90deg,#f56565,#e53e3e);color:#fff;">
+                            <span style="font-size:1.1em;">🚪</span> Esci
+                        </button>
+                    </div>
+                `;
+            } else {
+                userSection.innerHTML = `
+                    <button onclick="showAuthModal()" class="auth-button fancy-auth-btn">
+                        <span style="font-size:1.3em;">🔑</span> Accedi / Registrati
+                    </button>
+                `;
+            }
+        }
+
+        // Chiudi modal cliccando fuori
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if(e.target === this) {
+                hideAuthModal();
+            }
+        });
+
+        // Salva e carica spottedCars per utente
+        function getUserKey() {
+            return currentUser ? 'spottedCars_' + currentUser.email : 'spottedCars_guest';
+        }
+
+        function loadSpottedCars() {
+            const key = getUserKey();
+            spottedCars = JSON.parse(localStorage.getItem(key) || '[]');
+        }
+
+        function saveSpottedCars() {
+            const key = getUserKey();
+            localStorage.setItem(key, JSON.stringify(spottedCars));
+        }
+
+        // Carica spottedCars dell'utente corrente
+        function checkUserAuthentication() {
+            const savedUser = localStorage.getItem('currentUser');
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+            } else {
+                currentUser = null;
+            }
+            updateUserInterface();
+            loadSpottedCars();
+            displaySpottedCars();
+            updateStats();
+        }
+
+        // Gestione orientamento mobile
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+
+        // Prevenzione zoom su input focus (iOS)
+        document.addEventListener('touchstart', function() {}, true);
     </script>
 </body>
 </html>
