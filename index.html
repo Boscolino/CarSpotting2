@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .container { border: 1px solid #ccc; padding: 20px; }
+        .nav-tabs { margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .nav-tabs button { margin-right: 5px; padding: 10px; }
+        /* Styles for new elements */
+        #auth-container { margin-bottom: 20px; padding: 10px; border: 1px solid #eee; }
+        #user-status { margin-bottom: 10px; }
+        #login-form-container {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        #registration-form-container {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+        }
+        #login-form-container h3, #registration-form-container h3 { margin-top: 0; }
+        label, input { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="password"] { width: 200px; padding: 5px; }
+        button { padding: 8px 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="auth-container">
+            <div id="user-status">
+                <!-- Initially empty, or e.g., "You are not logged in." -->
+                <button id="logoutButton" style="display:none;">Logout</button>
+            </div>
+
+            <div id="login-form-container">
+                <h3>Login</h3>
+                <form id="loginForm">
+                    <div>
+                        <label for="loginUsername">Username:</label>
+                        <input type="text" id="loginUsername" name="username" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+                <p>Don't have an account? <button onclick="showRegistrationForm()">Register here</button></p>
+            </div>
+
+            <div id="registration-form-container">
+                <h3>Register</h3>
+                <form id="registrationForm">
+                    <div>
+                        <label for="regUsername">Username:</label>
+                        <input type="text" id="regUsername" name="username" required>
+                    </div>
+                    <div>
+                        <label for="regPassword">Password:</label>
+                        <input type="password" id="regPassword" name="password" required>
+                    </div>
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <button onclick="showLoginForm()">Login here</button></p>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button>Tab 1</button>
+            <button>Tab 2</button>
+        </div>
+
+        <div id="spottedCarsContainer" style="margin-top: 20px;">
+            <!-- Cars will be displayed here -->
+        </div>
+
+        <div id="statsContainer" style="margin-top: 20px; padding: 10px; border: 1px solid #eee;">
+            <h3>Statistics</h3>
+            <p>Total Spotted: <span id="totalSpotted">0</span></p>
+            <p>Unique Brands: <span id="uniqueBrands">0</span></p>
+            <p>Spotted Today: <span id="todaySpotted">0</span></p>
+            <p>Spotted This Month: <span id="monthSpotted">0</span></p>
+            <h4>Brand Breakdown:</h4>
+            <div id="brandStats"><p style="color: #718096;">Log in to see your stats.</p></div>
+        </div>
+    </div>
+    <script>
+        // Global variables
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+        let spottedCars = []; // To hold cars of the logged-in user
+
+        // --- DOM Elements ---
+        // We'll get these in DOMContentLoaded to ensure they exist
+        let loginFormContainer, registrationFormContainer, logoutButton, userStatusElement;
+        let loginForm, registrationForm;
+        let loginUsernameInput, loginPasswordInput, regUsernameInput, regPasswordInput;
+        let spottedCarsContainer, totalSpottedEl, uniqueBrandsEl, todaySpottedEl, monthSpottedEl, brandStatsEl;
+
+
+        // --- Utility Functions ---
+        function displaySpottedCars() {
+            if (!spottedCarsContainer) spottedCarsContainer = document.getElementById('spottedCarsContainer'); // Ensure it's assigned
+
+            if (!currentUser) {
+                if (spottedCarsContainer) {
+                    spottedCarsContainer.innerHTML = `
+                        <div style="text-align: center; color: #718096; padding: 40px;">
+                            <p>Please log in to see your spotted cars or to start spotting!</p>
+                        </div>`;
+                }
+                return;
+            }
+
+            if (!spottedCarsContainer) {
+                console.error("spottedCarsContainer not found");
+                return;
+            }
+
+            spottedCarsContainer.innerHTML = ''; // Clear existing cars
+            if (spottedCars.length === 0) {
+                spottedCarsContainer.innerHTML = '<p style="text-align: center; color: #718096;">You haven\'t spotted any cars yet. Go find some!</p>';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            ul.style.listStyleType = 'none';
+            ul.style.padding = '0';
+
+            spottedCars.forEach(car => {
+                const li = document.createElement('li');
+                li.style.border = '1px solid #ddd';
+                li.style.padding = '10px';
+                li.style.marginBottom = '10px';
+                li.textContent = `Brand: ${car.brand}, Model: ${car.model}, Spotted: ${new Date(car.spottedDate).toLocaleDateString()}`;
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.style.marginLeft = '10px';
+                deleteButton.style.backgroundColor = '#ff6b6b';
+                deleteButton.style.color = 'white';
+                deleteButton.style.border = 'none';
+                deleteButton.style.padding = '5px 8px';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.onclick = function() { deleteSpottedCar(car.id); };
+                li.appendChild(deleteButton);
+                ul.appendChild(li);
+            });
+            spottedCarsContainer.appendChild(ul);
+            console.log("displaySpottedCars called for user:", currentUser, "Cars displayed:", spottedCars.length);
+        }
+
+        function updateStats() {
+            if (!totalSpottedEl) totalSpottedEl = document.getElementById('totalSpotted');
+            if (!uniqueBrandsEl) uniqueBrandsEl = document.getElementById('uniqueBrands');
+            if (!todaySpottedEl) todaySpottedEl = document.getElementById('todaySpotted');
+            if (!monthSpottedEl) monthSpottedEl = document.getElementById('monthSpotted');
+            if (!brandStatsEl) brandStatsEl = document.getElementById('brandStats');
+
+            if (!currentUser) {
+                if(totalSpottedEl) totalSpottedEl.textContent = '0';
+                if(uniqueBrandsEl) uniqueBrandsEl.textContent = '0';
+                if(todaySpottedEl) todaySpottedEl.textContent = '0';
+                if(monthSpottedEl) monthSpottedEl.textContent = '0';
+                if(brandStatsEl) brandStatsEl.innerHTML = '<p style="color: #718096;">Log in to see your stats.</p>';
+                return;
+            }
+            
+            if (!totalSpottedEl || !uniqueBrandsEl || !todaySpottedEl || !monthSpottedEl || !brandStatsEl) {
+                 console.error("One or more stats elements not found");
+                 return;
+            }
+
+            totalSpottedEl.textContent = spottedCars.length;
+
+            const brands = new Set(spottedCars.map(car => car.brand.toLowerCase()));
+            uniqueBrandsEl.textContent = brands.size;
+
+            const today = new Date().setHours(0, 0, 0, 0);
+            const todayCount = spottedCars.filter(car => new Date(car.spottedDate).setHours(0, 0, 0, 0) === today).length;
+            todaySpottedEl.textContent = todayCount;
+
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthCount = spottedCars.filter(car => {
+                const date = new Date(car.spottedDate);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            }).length;
+            monthSpottedEl.textContent = monthCount;
+
+            // Brand stats
+            const brandCounts = spottedCars.reduce((acc, car) => {
+                acc[car.brand] = (acc[car.brand] || 0) + 1;
+                return acc;
+            }, {});
+            
+            brandStatsEl.innerHTML = ''; // Clear previous stats
+            if (Object.keys(brandCounts).length === 0) {
+                brandStatsEl.innerHTML = '<p style="color: #718096;">No cars spotted yet for brand breakdown.</p>';
+            } else {
+                const ul = document.createElement('ul');
+                ul.style.paddingLeft = '20px';
+                for (const brand in brandCounts) {
+                    const li = document.createElement('li');
+                    li.textContent = `${brand}: ${brandCounts[brand]}`;
+                    ul.appendChild(li);
+                }
+                brandStatsEl.appendChild(ul);
+            }
+            console.log("updateStats called for user:", currentUser);
+        }
+        
+        // --- Car Management Functions ---
+        function generateCarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        }
+
+        function spotCar(brand, model) {
+            if (!currentUser) {
+                alert("Please log in to spot cars.");
+                return;
+            }
+            const spottedCar = { id: generateCarId(), brand: brand, model: model, photo: null, spottedDate: new Date().toISOString() };
+
+            if (!users[currentUser]) { 
+                alert("Error: Current user not found in database.");
+                return;
+            }
+            if (!users[currentUser].cars) {
+                users[currentUser].cars = []; 
+            }
+            users[currentUser].cars.push(spottedCar);
+            localStorage.setItem('users', JSON.stringify(users));
+            spottedCars = users[currentUser].cars; 
+
+            console.log("Car spotted and saved for user:", currentUser, spottedCar);
+            displaySpottedCars();
+            updateStats();
+        }
+
+        function saveSpottedCar(carData) { 
+            if (!currentUser) {
+                alert("Please log in to save your spot.");
+                return;
+            }
+             if (!carData || !carData.brand || !carData.model) {
+                alert("Car data is incomplete. Cannot save.");
+                return;
+            }
+
+            const newSpottedCar = { 
+                id: generateCarId(),
+                brand: carData.brand, 
+                model: carData.model, 
+                photo: carData.photo || null, 
+                spottedDate: new Date().toISOString() 
+            };
+
+            if (!users[currentUser]) { 
+                alert("Error: Current user not found in database.");
+                return;
+            }
+            if (!users[currentUser].cars) {
+                users[currentUser].cars = [];
+            }
+            users[currentUser].cars.push(newSpottedCar);
+            localStorage.setItem('users', JSON.stringify(users));
+            spottedCars = users[currentUser].cars; 
+
+            console.log("Car data saved for user:", currentUser, newSpottedCar);
+            displaySpottedCars();
+            updateStats();
+        }
+
+        function deleteSpottedCar(carId) {
+            if (!currentUser) {
+                alert("Error: No user logged in. Cannot delete car.");
+                return;
+            }
+            if (!users[currentUser] || !users[currentUser].cars) {
+                alert("Error: User data or car list not found.");
+                return;
+            }
+
+            const initialLength = users[currentUser].cars.length;
+            users[currentUser].cars = users[currentUser].cars.filter(car => car.id !== carId);
+            
+            if (users[currentUser].cars.length < initialLength) {
+                spottedCars = users[currentUser].cars; // Update global array
+                localStorage.setItem('users', JSON.stringify(users));
+                console.log("Car with ID", carId, "deleted for user:", currentUser);
+                displaySpottedCars();
+                updateStats();
+            } else {
+                console.log("Car with ID", carId, "not found for user:", currentUser);
+            }
+        }
+
+        // --- Form Visibility ---
+        function showRegistrationForm() {
+            if(loginFormContainer) loginFormContainer.style.display = 'none';
+            if(registrationFormContainer) registrationFormContainer.style.display = 'block';
+        }
+
+        function showLoginForm() {
+            if(registrationFormContainer) registrationFormContainer.style.display = 'none';
+            if(loginFormContainer) loginFormContainer.style.display = 'block';
+        }
+
+        // --- UI Update based on Login Status ---
+        function updateLoginStatusUI() {
+            if (currentUser) {
+                if(loginFormContainer) loginFormContainer.style.display = 'none';
+                if(registrationFormContainer) registrationFormContainer.style.display = 'none';
+                if(logoutButton) logoutButton.style.display = 'inline'; // Or 'block'
+                if(userStatusElement) userStatusElement.textContent = "Logged in as: " + currentUser;
+            } else {
+                // By default, show login form if no user is logged in
+                showLoginForm(); // This will also hide registration form
+                if(logoutButton) logoutButton.style.display = 'none';
+                if(userStatusElement) userStatusElement.textContent = "You are not logged in.";
+            }
+        }
+
+        // --- Authentication Functions ---
+        function registerUser(username, password) {
+            if (users[username]) {
+                alert("Username already exists.");
+                return;
+            }
+            users[username] = { password: password, cars: [] };
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("Registration successful! Please log in.");
+            if(regUsernameInput) regUsernameInput.value = '';
+            if(regPasswordInput) regPasswordInput.value = '';
+            showLoginForm();
+        }
+
+        function loginUser(username, password) {
+            if (!users[username]) {
+                alert("User not found.");
+                return;
+            }
+            if (users[username].password !== password) {
+                alert("Incorrect password.");
+                return;
+            }
+            currentUser = username;
+            sessionStorage.setItem('currentUser', currentUser);
+
+            // Load user's cars or initialize if not present
+            if (users[currentUser] && users[currentUser].cars) {
+                spottedCars = users[currentUser].cars;
+            } else {
+                // This case might happen if a user was created without a cars array, ensure it's initialized
+                if (!users[currentUser]) users[currentUser] = { password: password, cars: [] }; // Should not happen if login was successful
+                else users[currentUser].cars = [];
+                spottedCars = [];
+                localStorage.setItem('users', JSON.stringify(users)); // Save if cars array was initialized
+            }
+
+            alert("Login successful!");
+            updateLoginStatusUI();
+            displaySpottedCars(); // Refresh display
+            updateStats();        // Refresh stats
+            if(loginUsernameInput) loginUsernameInput.value = '';
+            if(loginPasswordInput) loginPasswordInput.value = '';
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            spottedCars = []; // Clear user-specific data
+            alert("Logged out.");
+            updateLoginStatusUI();
+            displaySpottedCars(); // Clear or update display
+            updateStats();        // Clear or update stats
+        }
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Assign DOM elements after they are loaded
+            loginFormContainer = document.getElementById('login-form-container');
+            registrationFormContainer = document.getElementById('registration-form-container');
+            logoutButton = document.getElementById('logoutButton');
+            userStatusElement = document.getElementById('user-status'); 
+            
+            spottedCarsContainer = document.getElementById('spottedCarsContainer');
+            totalSpottedEl = document.getElementById('totalSpotted');
+            uniqueBrandsEl = document.getElementById('uniqueBrands');
+            todaySpottedEl = document.getElementById('todaySpotted');
+            monthSpottedEl = document.getElementById('monthSpotted');
+            brandStatsEl = document.getElementById('brandStats');
+
+            loginForm = document.getElementById('loginForm');
+            registrationForm = document.getElementById('registrationForm');
+
+            loginUsernameInput = document.getElementById('loginUsername');
+            loginPasswordInput = document.getElementById('loginPassword');
+            regUsernameInput = document.getElementById('regUsername');
+            regPasswordInput = document.getElementById('regPassword');
+
+            // Attach event listeners
+            if(loginForm) {
+                loginForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if(loginUsernameInput && loginPasswordInput) {
+                        loginUser(loginUsernameInput.value, loginPasswordInput.value);
+                    }
+                });
+            }
+
+            if(registrationForm) {
+                registrationForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if(regUsernameInput && regPasswordInput) {
+                        registerUser(regUsernameInput.value, regPasswordInput.value);
+                    }
+                });
+            }
+
+            if(logoutButton) {
+                logoutButton.addEventListener('click', function() {
+                    logoutUser();
+                });
+            }
+
+            // Initial state setup
+            const storedUser = sessionStorage.getItem('currentUser');
+            if (storedUser && users[storedUser]) { 
+                currentUser = storedUser;
+                // Load user's cars or initialize if not present
+                if (users[currentUser] && users[currentUser].cars) {
+                    spottedCars = users[currentUser].cars;
+                } else {
+                    // If user data is somehow inconsistent or user has no cars
+                    if(users[currentUser]) { // if user exists but no cars array
+                        users[currentUser].cars = [];
+                        localStorage.setItem('users', JSON.stringify(users)); // Re-save users
+                    }
+                    spottedCars = [];
+                }
+            } else {
+                // Ensure if a user was in sessionStorage but (e.g.) deleted from localStorage, they are logged out
+                if(storedUser) sessionStorage.removeItem('currentUser'); // Clear invalid session
+                currentUser = null;
+                spottedCars = [];
+            }
+            updateLoginStatusUI(); 
+            displaySpottedCars(); // Display cars if any for logged-in user
+            updateStats();        // Update stats if any for logged-in user
+            // showLoginForm(); // This is handled by updateLoginStatusUI if not logged in
+        });
+    </script>
+</body>
+</html>
